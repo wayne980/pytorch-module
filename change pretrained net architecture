@@ -1,0 +1,22 @@
+base_model=models.resnet50(pretrained=True)
+#print(type(base_model))
+batch_size=15
+class M1501(nn.Module):
+        def __init__(self , model):
+            super(M1501, self).__init__()
+            #取掉model的后两层
+            self.resnet_layer = nn.Sequential(*list(model.children())[:-2])
+            #self.transion_layer = nn.ConvTranspose2d(2048, 2048, kernel_size=14, stride=3)
+            #self.pool_layer = nn.MaxPool2d(32)
+            self.avgpool=nn.AvgPool2d(7,stride=1)
+            
+            self.Linear_layer = nn.Linear(2048, 751)
+            
+        def forward(self, x):
+            x = self.resnet_layer(x)
+            x = self.avgpool(x)
+            x1 = x.view(x.size(0), -1) 
+            x2 = self.Linear_layer(x1) 
+            return x1,x2
+
+model=M1501(base_model).to(device)
