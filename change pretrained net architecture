@@ -5,7 +5,7 @@ batch_size=15
 class M1501(nn.Module):
         def __init__(self , model):
             super(M1501, self).__init__()
-            #取掉model的后两层
+            #去掉model的后两层
             self.resnet_layer = nn.Sequential(*list(model.children())[:-2])
             #self.transion_layer = nn.ConvTranspose2d(2048, 2048, kernel_size=14, stride=3)
             #self.pool_layer = nn.MaxPool2d(32)
@@ -53,4 +53,31 @@ class ft_net(nn.Module):
         x = torch.squeeze(x)
         x = self.classifier(x) #use our classifier.
         return x
+        
+approach3：
+resnet = models.resnet152(pretrained=True)
+del resnet.fc
+approach4：
+resnet = models.resnet152(pretrained=True)
+        modules = list(resnet.children())[:-1]      # delete the last fc layer.
+        convnet = nn.Sequential(*modules)
+
+
+#加载model，model是自己定义好的模型
+resnet50 = models.resnet50(pretrained=True) 
+model =Net(...) 
+ 
+#读取参数 
+pretrained_dict =resnet50.state_dict() 
+model_dict = model.state_dict() 
+ 
+#将pretrained_dict里不属于model_dict的键剔除掉 
+pretrained_dict =  {k: v for k, v in pretrained_dict.items() if k in model_dict} 
+ 
+# 更新现有的model_dict 
+model_dict.update(pretrained_dict) 
+ 
+# 加载我们真正需要的state_dict 
+model.load_state_dict(model_dict) 
+！
 
